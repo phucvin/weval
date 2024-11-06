@@ -12,14 +12,14 @@ all: $(NAME).wasm $(NAME)-wevaled.wasm $(NAME)-noweval.wasm
 $(NAME).wasm: $(NAME).o
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
-$(NAME)-noweval.wasm: $(NAME)-noweval.o
-	$(CXX) $(CXXFLAGS) -o $@ $^
-
 $(NAME)-wevaled.wasm: $(NAME).wasm
 	$(WEVAL) weval -w -i $^ -o $@
 
 $(NAME).o: $(NAME).cpp ../../include/weval.h
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+$(NAME)-noweval.wasm: $(NAME)-noweval.o
+	$(CXX) $(CXXFLAGS) -o $@ $^
 
 $(NAME)-noweval.o: $(NAME).cpp
 	$(CXX) $(CXXFLAGS) -DNO_WEVAL -c -o $@ $<

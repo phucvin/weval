@@ -168,7 +168,7 @@ out:
     return steps;
 }
 
-static const uint32_t kIters = 10000000;
+static const uint32_t kIters = 10000008;
 Inst prog[] = {
     Inst(PushConst, 0),
     Inst(Dup),
