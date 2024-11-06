@@ -1,11 +1,15 @@
+#ifndef NO_WEVAL
 #include <weval.h>
+#endif
 #include <wizer.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <assert.h>
 
+#ifndef NO_WEVAL
 WIZER_DEFAULT_INIT();
 WEVAL_DEFINE_GLOBALS();
+#endif
 
 enum Opcode {
     PushConst,
@@ -45,16 +49,20 @@ uint32_t Interpret(const Inst* insts, uint32_t ninsts, State* state) {
     uint32_t* locals = state->locals;
     int sp = 0;
 
+#ifndef NO_WEVAL
     if (Specialized) {
         weval::push_context(pc);
     }
+#endif
     while (true) {
         steps++;
         const Inst* inst = &insts[pc];
         pc++;
+#ifndef NO_WEVAL
         if (Specialized) {
             weval::update_context(pc);
         }
+#endif
         switch (inst->opcode) {
             case PushConst:
                 if (sp + 1 > OPSTACK_SIZE) {
@@ -121,9 +129,11 @@ uint32_t Interpret(const Inst* insts, uint32_t ninsts, State* state) {
                     return 0;
                 }
                 pc = inst->imm;
+#ifndef NO_WEVAL
                 if (Specialized) {
                     weval::update_context(pc);
                 }
+#endif
                 break;
             case GotoIf:
                 if (sp == 0) {
@@ -135,9 +145,11 @@ uint32_t Interpret(const Inst* insts, uint32_t ninsts, State* state) {
                 sp--;
                 if (opstack[sp] != 0) {
                     pc = inst->imm;
+#ifndef NO_WEVAL
                     if (Specialized) {
                         weval::update_context(pc);
                     }
+#endif
                     continue;
                 }
                 break;
@@ -146,15 +158,17 @@ uint32_t Interpret(const Inst* insts, uint32_t ninsts, State* state) {
         }
     }
 out:
+#ifndef NO_WEVAL
     if (Specialized) {
         weval::pop_context();
     }
+#endif
 
     printf("Exiting after %d steps at PC %d.\n", steps, pc);
     return steps;
 }
 
-static const uint32_t kIters = 100000000;
+static const uint32_t kIters = 10000000;
 Inst prog[] = {
     Inst(PushConst, 0),
     Inst(Dup),
@@ -170,7 +184,9 @@ static const uint32_t kExpectedSteps = 7*kIters + 6;
 
 typedef uint32_t (*InterpretFunc)(const Inst* insts, uint32_t ninsts, State* state);
 
+#ifndef NO_WEVAL
 WEVAL_DEFINE_TARGET(1, Interpret<true>);
+#endif
 
 struct Func {
     const Inst* insts;
@@ -180,6 +196,7 @@ struct Func {
     Func(const Inst* insts_, uint32_t ninsts_)
         : insts(insts_), ninsts(ninsts_), specialized(nullptr) {
         printf("ctor: ptr %p\n", &specialized);
+#ifndef NO_WEVAL
         auto* req = weval::weval(
                 &specialized,
                 &Interpret<true>,
@@ -189,6 +206,7 @@ struct Func {
                 weval::Specialize(ninsts),
                 weval::Runtime<State*>());
         assert(req);
+#endif
     }
 
     uint32_t invoke(State* state) {

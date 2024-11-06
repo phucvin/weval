@@ -7,9 +7,12 @@ CXXFLAGS := $(CFLAGS) -std=c++17
 WEVAL := ../../target/release/weval
 
 .PHONY: all
-all: $(NAME).wasm $(NAME)-wevaled.wasm
+all: $(NAME).wasm $(NAME)-wevaled.wasm $(NAME)-noweval.wasm
 
 $(NAME).wasm: $(NAME).o
+	$(CXX) $(CXXFLAGS) -o $@ $^
+
+$(NAME)-noweval.wasm: $(NAME)-noweval.o
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
 $(NAME)-wevaled.wasm: $(NAME).wasm
@@ -18,9 +21,12 @@ $(NAME)-wevaled.wasm: $(NAME).wasm
 $(NAME).o: $(NAME).cpp ../../include/weval.h
 	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
+$(NAME)-noweval.o: $(NAME).cpp
+	$(CXX) $(CXXFLAGS) -DNO_WEVAL -c -o $@ $<
+
 .PHONY: clean
 clean:
-	rm -f $(NAME).wasm $(NAME)-wevaled.wasm *.o
+	rm -f $(NAME).wasm $(NAME)-wevaled.wasm $(NAME)-noweval.wasm *.o
 
 .PHONY: run-base
 run-base: $(NAME).wasm
