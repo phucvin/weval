@@ -207,6 +207,6 @@ int main(int argc, char** argv) {
     State* state = (State*)calloc(sizeof(State), 1);
     uint32_t steps = prog_func.invoke(state);
     assert(kExpectedSteps == steps);
-    printf("end state: %d", state->opstack[0]);
+    printf("end state: %d\n", state->opstack[0]);
     fflush(stdout);
 }
