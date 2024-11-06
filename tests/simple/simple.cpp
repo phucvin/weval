@@ -154,7 +154,7 @@ out:
     return steps;
 }
 
-static const uint32_t kIters = 10000000;
+static const uint32_t kIters = 100000000;
 Inst prog[] = {
     Inst(PushConst, 0),
     Inst(Dup),
@@ -207,5 +207,6 @@ int main(int argc, char** argv) {
     State* state = (State*)calloc(sizeof(State), 1);
     uint32_t steps = prog_func.invoke(state);
     assert(kExpectedSteps == steps);
+    printf("end state: %d", state->opstack[0]);
     fflush(stdout);
 }
